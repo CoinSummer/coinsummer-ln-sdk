@@ -6,6 +6,8 @@ const ec = new require('elliptic').ec('secp256k1')
 
 const { URLSearchParams } = require('url')
 
+const API_HOST = 'http://localhost:3000'
+
 const ZERO = Buffer.alloc(1, 0)
 function toDER(x){
   let i = 0
@@ -32,7 +34,7 @@ const sign = (message, appSecret) =>{
   return bip66.encode(r, s).toString('hex')
 }
 
-const request = (method, path, params, appKey, appSecret, base = 'http://localhost:3000') => {
+const request = (method, path, params, appKey, appSecret, base = API_HOST) => {
   const nonce = String(new Date().getTime())
   const sortedParams = Object.keys(params).sort().map((k) => {
     return k + '=' + encodeURIComponent(params[k])

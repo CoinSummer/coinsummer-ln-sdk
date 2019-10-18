@@ -20,7 +20,7 @@ import requests
 
 COBO_PUB = "032f45930f652d72e0c90f71869dfe9af7d713b1f67dc2f7cb51f9572778b9c876"
 FAKE_INNER_SECRET = "FAKE_SECRET"
-
+API_HOST = "http://localhost:3000"
 
 def double_hash256(content):
     return hashlib.sha256(hashlib.sha256(content.encode()).digest()).digest()
@@ -65,7 +65,7 @@ def request(
     params,
     app_key,
     api_secret,
-    host="http://localhost:3000",
+    host=API_HOST,
     sign_type="hmac",
 ):
     method = method.upper()
@@ -108,7 +108,7 @@ class Client(Cmd):
         self,
         app_key=None,
         api_secret=None,
-        host="http://localhost:3000",
+        host=API_HOST,
         sign_type="hmac",
     ):
         super(Client, self).__init__()
@@ -148,10 +148,13 @@ class Client(Cmd):
 
 if __name__ == "__main__":
     # Replace by your own keys
+    app_key = "HO21KDWFW8TC"
+    api_secret = "1N5JOH9SU64Q1217EWJIIGI5PW214ZNL"
+    api_host = API_HOST
     client = Client(
-        app_key="HO21KDWFW8TC",
-        api_secret="1N5JOH9SU64Q1217EWJIIGI5PW214ZNL",
-        host="http://localhost:3000",
+        app_key=app_key,
+        api_secret=api_secret,
+        host=api_host,
         sign_type="ecdsa",
     )
 

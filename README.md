@@ -1,19 +1,20 @@
-Cobo Custody Api Client Demo
+Razzil Api Client Demo
 
 ## Requirements:
 
-* Contact Cobo dev team to get keys
+* AppKey
+* AppSecret
 
 ## Execute:
 
 * Python
     - python3.6
     - pip install -r requirements.txt
-    - python custody_client.py
+    - python index.py
 
 * Go
-    - go run go/custody_client.go
+    - go run go/index.go
 
 * Js
-    - npm install
-    - node custody_client.js
+    - yarn install
+    - node index.js
