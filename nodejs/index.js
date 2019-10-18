@@ -23,7 +23,7 @@ const generate = () => {
   return [key.getPublic(true, 'hex'), key.getPrivate('hex')]
 }
 
-const sign = (message, appSecret) =>{
+const eccSignature = (message, appSecret) =>{
   // const message = 'GET|/v1/payment/|1541560385699|'
   const privateKey = Buffer.from(appSecret, 'hex')
   const result = ec.sign(Buffer.from(sha256.x2(message), 'hex'), privateKey)
@@ -43,10 +43,11 @@ const request = (method, path, params, appKey, appSecret, base = API_HOST) => {
   const headers = {
     'Biz-App-Key': appKey,
     'Biz-Api-Nonce': nonce,
-    'Biz-Api-Signature': sign(content, appSecret)
+    'Biz-Api-Signature': eccSignature(content, appSecret)
   }
   if (method == 'GET') {
-    return fetch(base + path + '?' + sortedParams, {
+    const fetchUrl = sortedParams ? base + path + '?' + sortedParams : base + path
+    return fetch(fetchUrl, {
       'method': method,
       'headers': headers,
     })
@@ -68,17 +69,18 @@ const request = (method, path, params, appKey, appSecret, base = API_HOST) => {
 const appKey = 'HO21KDWFW8TC'
 const appSecret = '1N5JOH9SU64Q1217EWJIIGI5PW214ZNL'
 
-/*
-request('GET', '/v1/payment/000a0d86-31d3-4249-a47a-4365c3b4fbda', {}, appKey, appSecret)
+const paymentId = 'ead2a21c-ff76-4928-8652-b20e0ee51cdb'
+request('GET', `/v1/payment/${paymentId}`, {}, appKey, appSecret)
   .then(res => {
     // console.log(res.status)
     res.json().then((data) => {
-      // console.log(data)
+      console.log(data)
     })
   }).catch(err => {
     console.log(err)
   })
 
+  /*
 request('GET', '/v1/custody/transaction_history/', {'coin': 'ETH', 'side': 'deposit'}, appKey, appSecret)
   .then(res => {
     console.log(res.status)
@@ -89,6 +91,8 @@ request('GET', '/v1/custody/transaction_history/', {'coin': 'ETH', 'side': 'depo
     console.log(err)
   })
 */
+
+/*
 request('POST', '/v1/payment/', {
   // 'targetId': '',
   amount: 1025,
@@ -102,3 +106,4 @@ request('POST', '/v1/payment/', {
   }).catch(err => {
     console.log(err)
   })
+*/

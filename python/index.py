@@ -4,6 +4,7 @@ import hmac
 import json
 import random
 import time
+import binascii
 from binascii import b2a_hex, a2b_hex
 from cmd import Cmd
 
@@ -31,9 +32,21 @@ def verify(content, signature, pub_key):
     return key.verify(double_hash256(content), a2b_hex(signature))
 
 
-def generate_ecc_signature(content, key):
-    key = Key(secret_exponent=from_bytes_32(a2b_hex(key)))
-    return b2a_hex(key.sign(double_hash256(content))).decode()
+def generate_ecc_signature(content, appSecret):
+    # keyStr = Key(secret_exponent=from_bytes_32(a2b_hex(key)))
+    # print(keyStr)
+    # return b2a_hex(keyStr.sign(double_hash256(content))).decode()
+    # test = binascii.hexlify(appSecret.encode())
+    # keys = Key(secret_exponent=from_bytes_32(a2b_hex(appSecret.encode())))
+    bin_key = bin(int(binascii.hexlify(appSecret.encode()), 16))
+    private_key = binascii.a2b_hex(bin_key)
+    print(private_key)
+    test = from_bytes_32(private_key)
+    # keyStr = Key(secret_exponent=from_bytes_32(private_key))
+    print(test)
+    keys = Key(secret_exponent=test)
+    print(keys)
+    return ''
 
 
 def generate_hmac_signature(content, key):
@@ -71,6 +84,7 @@ def request(
     method = method.upper()
     nonce = str(int(time.time() * 1000))
     content = "%s|%s|%s|%s" % (method, path, nonce, sort_params(params))
+
     if sign_type == "hmac":
         sign = generate_hmac_signature(content, api_secret)
     else:
@@ -99,9 +113,7 @@ get = functools.partial(request, "GET")
 post = functools.partial(request, "POST")
 
 
-class Client(Cmd):
-    prompt = "Razzil> "
-    intro = "Welcome to the Razzil shell. Type help or ? to list commands. \n"
+class Client():
 
     def __init__(
         self,
@@ -123,27 +135,13 @@ class Client(Cmd):
         res = method(url, data, self.key, self.secret, self.host, self.sign_type)
         print(json.dumps(res, indent=4))
 
-    def do_create_payment(self, line):
-        (
-            "\n\tquery expiry if amount, format: \033[93m[amount] [expiry]\033[0m "
-            "\n\texample: \033[91mquery_address LONT_ONT ADDRESS\033[0m\n"
-        )
-        if len(line.split()) != 2:
-            print("format: [amount] [expiry]")
-            return
-        amount, expiry = line.split()
+    def create_payment(self, amount, expiry):
         return self._request(
             post, "/v1/payment/", {"amount": amount, "expiry": expiry}
         )
 
-    def do_get_payment(self, line):
-        (
-            "\n\tshow detail of payment, format: \033[93m[paymentId]\033[0m "
-            "\n\texample: \033[91mpayment LONT_ONT\033[0m\n"
-        )
-        paymentId = line.strip()
+    def get_payment(self, paymentId):
         return self._request(get, "/v1/payment/" + paymentId, {})
-
 
 if __name__ == "__main__":
     # Replace by your own keys
@@ -156,5 +154,6 @@ if __name__ == "__main__":
         host=api_host,
         sign_type="ecdsa",
     )
-
-    client.cmdloop()
+    client.create_payment(1024, 1800)
+    print(client)
+    # client.cmdloop()
