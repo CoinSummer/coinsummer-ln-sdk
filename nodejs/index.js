@@ -23,7 +23,7 @@ const generate = () => {
   return [key.getPublic(true, 'hex'), key.getPrivate('hex')]
 }
 
-const eccSignature = (message, appSecret) =>{
+const generateEccSignature = (message, appSecret) =>{
   // const message = 'GET|/v1/payment/|1541560385699|'
   const privateKey = Buffer.from(appSecret, 'hex')
   const result = ec.sign(Buffer.from(sha256.x2(message), 'hex'), privateKey)
@@ -43,7 +43,7 @@ const request = (method, path, params, appKey, appSecret, base = API_HOST) => {
   const headers = {
     'Biz-App-Key': appKey,
     'Biz-Api-Nonce': nonce,
-    'Biz-Api-Signature': eccSignature(content, appSecret)
+    'Biz-Api-Signature': generateEccSignature(content, appSecret)
   }
   if (method == 'GET') {
     const fetchUrl = sortedParams ? base + path + '?' + sortedParams : base + path
