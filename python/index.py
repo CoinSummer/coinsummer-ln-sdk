@@ -75,25 +75,24 @@ def request(
         sign = generate_hmac_signature(content, api_secret)
     else:
         sign = generate_ecc_signature(content, api_secret)
-    print(sign)
 
-    # headers = {
-    #     "Biz-App-Key": app_key,
-    #     "Biz-Api-Nonce": nonce,
-    #     "Biz-Api-Signature": sign,
-    # }
-    # if method == "GET":
-    #     resp = requests.get(
-    #         "%s%s" % (host, path), params=urlencode(params), headers=headers
-    #     )
-    # elif method == "POST":
-    #     resp = requests.post("%s%s" % (host, path), data=params, headers=headers)
-    # else:
-    #     raise Exception("Not support http method")
-    # verify_success, result = verify_response(resp)
-    # if not verify_success:
-    #     raise Exception("Fatal: verify content error, maybe encounter mid man attack")
-    # return result
+    headers = {
+        "Biz-App-Key": app_key,
+        "Biz-Api-Nonce": nonce,
+        "Biz-Api-Signature": sign,
+    }
+    if method == "GET":
+        resp = requests.get(
+            "%s%s" % (host, path), params=urlencode(params), headers=headers
+        )
+    elif method == "POST":
+        resp = requests.post("%s%s" % (host, path), data=params, headers=headers)
+    else:
+        raise Exception("Not support http method")
+    verify_success, result = verify_response(resp)
+    if not verify_success:
+        raise Exception("Fatal: verify content error, maybe encounter mid man attack")
+    return result
 
 
 get = functools.partial(request, "GET")
