@@ -7,8 +7,8 @@ const ec = new require('elliptic').ec('secp256k1')
 const { URLSearchParams } = require('url')
 
 const API_HOST = 'http://razzil-api.dev.csiodev.com'
-const appKey = '21G7NJ3EF58O'
-const appSecret = 'KKDRCVMWGVR7B7HUHR2NN2B6TWC4Z7ZO'
+const appKey = 'W4R4IHQNBB91PG6K'
+const appSecret = '016f47e0bcf9a152dd216d1990468c1cb9aa29e82bf2bbc303e15c597add404b'
 
 
 const ZERO = Buffer.alloc(1, 0)
@@ -21,9 +21,8 @@ function toDER(x){
   return x
 }
 
-const generate = () => {
-  let key = ec.genKeyPair()
-  return [key.getPublic(true, 'hex'), key.getPrivate('hex')]
+const generatePrivateKey = () => {
+  return ec.genKeyPair().getPrivate('hex')
 }
 
 const generateEccSignature = (message, appSecret) =>{
@@ -69,6 +68,10 @@ const request = (method, path, params, appKey, appSecret, base = API_HOST) => {
   }
 }
 
+const privateSecret = generatePrivateKey()
+console.log(privateSecret);
+
+
 /*
 const paymentId = 'ead2a21c-ff76-4928-8652-b20e0ee51cdb'
 request('GET', `/v1/payment/${paymentId}`, {}, appKey, appSecret)
@@ -96,4 +99,3 @@ request('POST', '/v1/payment/', {
   }).catch(err => {
     console.log(err)
   })
-

@@ -1,3 +1,4 @@
+from binascii import hexlify, unhexlify
 import functools
 import hashlib
 import hmac
@@ -6,7 +7,7 @@ import random
 import time
 import binascii
 from binascii import b2a_hex, a2b_hex
-from cmd import Cmd
+from ecdsa import SigningKey, SECP256k1
 
 try:
     from urllib.parse import urlencode
@@ -19,9 +20,11 @@ from pycoin.encoding import from_bytes_32
 
 import requests
 
-COBO_PUB = "032f45930f652d72e0c90f71869dfe9af7d713b1f67dc2f7cb51f9572778b9c876"
-FAKE_INNER_SECRET = "FAKE_SECRET"
-API_HOST = "http://localhost:3000"
+RAZZIL_PUB = "032f45930f652d72e0c90f71869dfe9af7d713b1f67dc2f7cb51f9572778b9c876"
+API_HOST = "http://razzil-api.dev.csiodev.com"
+APP_KEY = "W4R4IHQNBB91PG6K"
+APP_SECRET = "016f47e0bcf9a152dd216d1990468c1cb9aa29e82bf2bbc303e15c597add404b"
+
 
 def double_hash256(content):
     return hashlib.sha256(hashlib.sha256(content.encode()).digest()).digest()
@@ -32,25 +35,18 @@ def verify(content, signature, pub_key):
     return key.verify(double_hash256(content), a2b_hex(signature))
 
 
-def generate_ecc_signature(content, appSecret):
-    # keyStr = Key(secret_exponent=from_bytes_32(a2b_hex(key)))
-    # print(keyStr)
-    # return b2a_hex(keyStr.sign(double_hash256(content))).decode()
-    # test = binascii.hexlify(appSecret.encode())
-    # keys = Key(secret_exponent=from_bytes_32(a2b_hex(appSecret.encode())))
-    bin_key = bin(int(binascii.hexlify(appSecret.encode()), 16))
-    private_key = binascii.a2b_hex(bin_key)
-    print(private_key)
-    test = from_bytes_32(private_key)
-    # keyStr = Key(secret_exponent=from_bytes_32(private_key))
-    print(test)
-    keys = Key(secret_exponent=test)
-    print(keys)
-    return ''
+def generate_ecc_signature(content, key):
+    key = Key(secret_exponent=from_bytes_32(a2b_hex(key)))
+    return b2a_hex(key.sign(double_hash256(content))).decode()
 
 
 def generate_hmac_signature(content, key):
     return hmac.new(key.encode(), content.encode(), hashlib.sha256).hexdigest()
+
+
+def generate_private_secret(key):
+    s = hashlib.sha256(bytes(key, 'utf-8')).digest()
+    return hexlify(s).decode('ascii')
 
 
 def sort_params(params):
@@ -66,7 +62,7 @@ def verify_response(response):
     try:
         timestamp = response.headers["BIZ_TIMESTAMP"]
         signature = response.headers["BIZ_RESP_SIGNATURE"]
-        success = verify("%s|%s" % (content, timestamp), signature, COBO_PUB)
+        success = verify("%s|%s" % (content, timestamp), signature, RAZZIL_PUB)
     except KeyError:
         pass
     return success, json.loads(content)
@@ -100,12 +96,14 @@ def request(
             "%s%s" % (host, path), params=urlencode(params), headers=headers
         )
     elif method == "POST":
-        resp = requests.post("%s%s" % (host, path), data=params, headers=headers)
+        resp = requests.post("%s%s" % (host, path),
+                             data=params, headers=headers)
     else:
         raise Exception("Not support http method")
     verify_success, result = verify_response(resp)
     if not verify_success:
-        raise Exception("Fatal: verify content error, maybe encounter mid man attack")
+        raise Exception(
+            "Fatal: verify content error, maybe encounter mid man attack")
     return result
 
 
@@ -132,7 +130,8 @@ class Client():
         self.sign_type = sign_type
 
     def _request(self, method, url, data):
-        res = method(url, data, self.key, self.secret, self.host, self.sign_type)
+        res = method(url, data, self.key, self.secret,
+                     self.host, self.sign_type)
         print(json.dumps(res, indent=4))
 
     def create_payment(self, amount, expiry):
@@ -143,10 +142,11 @@ class Client():
     def get_payment(self, paymentId):
         return self._request(get, "/v1/payment/" + paymentId, {})
 
+
 if __name__ == "__main__":
     # Replace by your own keys
-    app_key = "HO21KDWFW8TC"
-    api_secret = "1N5JOH9SU64Q1217EWJIIGI5PW214ZNL"
+    app_key = APP_KEY
+    api_secret = APP_SECRET
     api_host = API_HOST
     client = Client(
         app_key=app_key,
@@ -155,5 +155,6 @@ if __name__ == "__main__":
         sign_type="ecdsa",
     )
     client.create_payment(1024, 1800)
-    print(client)
-    # client.cmdloop()
+
+    # 获取交易详情
+    # client.get_payment('483fe08b-b5e8-4edc-8ff7-b8b7e7bb3bda')
