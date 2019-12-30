@@ -1,4 +1,4 @@
-Razzil Api Client Demo
+# Coinsummer LN SDK
 
 ## Requirements:
 
@@ -15,6 +15,6 @@ Razzil Api Client Demo
 * Go
     - go run go/index.go
 
-* Js
+* Node.js
     - yarn install
     - node index.js

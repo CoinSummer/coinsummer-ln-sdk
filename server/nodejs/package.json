@@ -1,10 +1,10 @@
 {
-  "name": "Cobo_Custody_Js_Client",
+  "name": "coinsummer-ln-client",
   "version": "1.0.0",
-  "description": "Cobo Custody Js Client",
+  "description": "Coinsummer LN NodeJS Client",
   "keywords": [
-    "Cobo",
-    "Custody"
+    "Coinsummer",
+    "Lightning Network"
   ],
   "scripts": {},
   "author": "",

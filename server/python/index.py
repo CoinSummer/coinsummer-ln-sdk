@@ -21,7 +21,8 @@ from pycoin.encoding import from_bytes_32
 import requests
 
 RAZZIL_PUB = "032f45930f652d72e0c90f71869dfe9af7d713b1f67dc2f7cb51f9572778b9c876"
-API_HOST = "http://razzil-api.dev.csiodev.com"
+# API_HOST = "http://razzil-api.dev.csiodev.com"
+API_HOST = 'http://localhost:3000'
 APP_KEY = "W4R4IHQNBB91PG6K"
 APP_SECRET = "016f47e0bcf9a152dd216d1990468c1cb9aa29e82bf2bbc303e15c597add404b"
 
@@ -35,8 +36,8 @@ def verify(content, signature, pub_key):
     return key.verify(double_hash256(content), a2b_hex(signature))
 
 
-def generate_ecc_signature(content, key):
-    key = Key(secret_exponent=from_bytes_32(a2b_hex(key)))
+def generate_ecc_signature(content, api_secret):
+    key = Key(secret_exponent=from_bytes_32(a2b_hex(api_secret)))
     return b2a_hex(key.sign(double_hash256(content))).decode()
 
 
@@ -87,7 +88,7 @@ def request(
         sign = generate_ecc_signature(content, api_secret)
 
     headers = {
-        "Biz-App-Key": app_key,
+        "Biz-Api-Key": app_key,
         "Biz-Api-Nonce": nonce,
         "Biz-Api-Signature": sign,
     }
@@ -154,7 +155,7 @@ if __name__ == "__main__":
         host=api_host,
         sign_type="ecdsa",
     )
-    client.create_payment(1024, 1800)
+    # client.create_payment(1024, 1800)
 
     # 获取交易详情
-    # client.get_payment('483fe08b-b5e8-4edc-8ff7-b8b7e7bb3bda')
+    client.get_payment('a766308d-2171-4196-bb96-38f30c661fbc')

@@ -6,10 +6,10 @@ const ec = new require('elliptic').ec('secp256k1')
 
 const { URLSearchParams } = require('url')
 
-const API_HOST = 'http://razzil-api.dev.csiodev.com'
-const appKey = 'W4R4IHQNBB91PG6K'
-const appSecret = '016f47e0bcf9a152dd216d1990468c1cb9aa29e82bf2bbc303e15c597add404b'
-
+// const API_HOST = 'http://razzil-api.dev.csiodev.com'
+const API_HOST = 'http://localhost:3000'
+const APP_KEY = '028566c1a75af63e766779fdd9556a4d48e6041edc7c012f9f727771bec0a78e74'
+const APP_SECRET = '16f4e5b72fb844e0b8179126f6710c1fdee846631cff4dae0863b28e7834d878'
 
 const ZERO = Buffer.alloc(1, 0)
 function toDER(x){
@@ -21,11 +21,20 @@ function toDER(x){
   return x
 }
 
-const generatePrivateKey = () => {
-  return ec.genKeyPair().getPrivate('hex')
+const generateKeyPair = () => {
+  const keyPair = ec.genKeyPair()
+  return {
+    privateKey: keyPair.getPrivate('hex'),
+    publicKey: keyPair.getPublic(true, 'hex')
+  }
 }
 
-const generateEccSignature = (message, appSecret) =>{
+/**
+ * 
+ * @param {*} message 
+ * @param {*} appSecret 
+ */
+const sign = (message, appSecret) => {
   // const message = 'GET|/v1/payment/|1541560385699|'
   const privateKey = Buffer.from(appSecret, 'hex')
   const result = ec.sign(Buffer.from(sha256.x2(message), 'hex'), privateKey)
@@ -43,9 +52,9 @@ const request = (method, path, params, appKey, appSecret, base = API_HOST) => {
   }).join('&')
   const content = [method, path, nonce, sortedParams].join('|')
   const headers = {
-    'Biz-App-Key': appKey,
+    'Biz-Api-Key': appKey,
     'Biz-Api-Nonce': nonce,
-    'Biz-Api-Signature': generateEccSignature(content, appSecret)
+    'Biz-Api-Signature': sign(content, appSecret)
   }
   if (method == 'GET') {
     const fetchUrl = sortedParams ? base + path + '?' + sortedParams : base + path
@@ -68,13 +77,12 @@ const request = (method, path, params, appKey, appSecret, base = API_HOST) => {
   }
 }
 
-const privateSecret = generatePrivateKey()
-console.log(privateSecret);
-
+// const keyPair = generateKeyPair()
+// console.log(keyPair);
 
 /*
 const paymentId = 'ead2a21c-ff76-4928-8652-b20e0ee51cdb'
-request('GET', `/v1/payment/${paymentId}`, {}, appKey, appSecret)
+request('GET', `/v1/payment/${paymentId}`, {}, APP_KEY, APP_SECRET)
   .then(res => {
     // console.log(res.status)
     res.json().then((data) => {
@@ -85,12 +93,11 @@ request('GET', `/v1/payment/${paymentId}`, {}, appKey, appSecret)
   })
 */
 
-
 request('POST', '/v1/payment/', {
   // 'targetId': '',
   amount: 1025,
   expiry: 900
-}, appKey, appSecret)
+}, APP_KEY, APP_SECRET)
   .then(res => {
     // console.log(res)
     res.json().then((data)=>{
