@@ -1,42 +1,39 @@
-## 查询账户详情
+# CoinSummer LN GO SDK
 
-```
-Request("GET", "/v1/custody/org_info/", map[string]string{})
-```
+## 获取支付列表
 
-## 获取新地址
-
-```
-Request("POST", "/v1/custody/new_address/", map[string]string{
-    "coin": "ETH",
+```go
+Request("GET", "/v1/payment", map[string]string{
+    page: 1,
+    limit: 10
 })
 ```
 
-## 获取交易记录
+## 查询支付详情
 
+```go
+Request("GET", "/v1/payment/payment_id", map[string]string{})
 ```
-Request("GET", "/v1/custody/transaction_history/", map[string]string{
-    "coin": "ETH",
-    "side": "deposit",
+
+## 创建支付订单
+
+```go
+Request("POST", "/v1/payment", map[string]string{
+    amount: 1024,
+    expiry: 1800
 })
 ```
 
 ## 提交提现申请
 
-```
-Request("POST", "/v1/custody/new_withdraw_request/", map[string]string{
-    "coin": "ETH", 
-    "address": "0x8e2782aabdf80fbb69399ce3d9bd5ae69a60462c", 
-    "amount": "100000000000000", 
-    "request_id": "unique_123456",
-    "memo": "hello test",
+```go
+Request("POST", "/v1/withdraw", map[string]string{
+    invoice: 'xxxxxxxx'
 })
 ```
 
 ## 获取提现申请信息
 
-```
-Request("GET", "/v1/custody/withdraw_info_by_request_id/", map[string]string{
-    "request_id": "unique_123456",
-})
+```go
+Request("GET", "/v1/withdraw/withdraw_id/", map[string]string{})
 ```

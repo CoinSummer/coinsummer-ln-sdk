@@ -1,85 +1,84 @@
-## 查询账户详情
+# CoinSummer LN Node.js SDK
 
+## 获取支付列表
+
+```js
+coinsummerLN('GET', '/v1/payment', 
+        {
+            page: 1,
+            limit: 10
+        },
+        api_key, api_secret, host
+    ).then(res => {
+        res.json().then((data)=>{
+            console.log(JSON.stringify(data, null, 4))
+        })
+    }).catch(err => {
+        console.log(err)
+    })
 ```
-coboFetch('GET', '/v1/custody/org_info/', {}, api_key, api_secret, host)
+
+## 查询支付详情
+
+```js
+coinsummerLN('GET', `/v1/payment/${paymentId}`, {}, api_key, api_secret, host)
     .then(res => {
         res.json().then((data)=>{
-            console.log(JSON.stringify(data, null, 4));
+            console.log(JSON.stringify(data, null, 4))
         })
     }).catch(err => {
         console.log(err)
-    });
+    })
 ```
 
-## 获取新地址
+## 创建支付订单
 
-```
-coboFetch('POST', '/v1/custody/new_address/', 
+```js
+coinsummerLN('POST', '/v1/payment', 
         {
-            "coin": "ETH"
-        }, 
+            amount: 1024,
+            expiry: 1800
+        },
         api_key, api_secret, host
     ).then(res => {
         res.json().then((data)=>{
-            console.log(JSON.stringify(data, null, 4));
+            console.log(JSON.stringify(data, null, 4))
         })
     }).catch(err => {
         console.log(err)
-    });
-```
-
-## 获取交易记录
-
-```
-coboFetch('GET', '/v1/custody/transaction_history/', 
-        {
-            "coin": "ETH",
-            "side": "deposit"
-        }, 
-        api_key, api_secret, host
-    ).then(res => {
-        res.json().then((data)=>{
-            console.log(JSON.stringify(data, null, 4));
-        })
-    }).catch(err => {
-        console.log(err)
-    });
+    })
 ```
 
 ## 提交提现申请
 
-```
-coboFetch('POST', '/v1/custody/new_withdraw_request/', 
+```js
+coinsummerLN('POST', '/v1/withdraw', 
         {
-            "coin": "ETH", 
-            "address": "0x8e2782aabdf80fbb69399ce3d9bd5ae69a60462c", 
-            "amount": "100000000000000", 
-            "request_id": "unique_123456",
-            "memo": "hello test"
-        }, 
+            invoice: 'xxxxxxxx'
+        },
         api_key, api_secret, host
     ).then(res => {
         res.json().then((data)=>{
-            console.log(JSON.stringify(data, null, 4));
+            console.log(JSON.stringify(data, null, 4))
         })
     }).catch(err => {
         console.log(err)
-    });
+    })
 ```
 
 ## 获取提现申请信息
 
-```
-coboFetch('GET', '/v1/custody/withdraw_info_by_request_id/', 
+```js
+coinsummerLN('GET', '/v1/withdraw', 
         {
-            "request_id": "unique_123456"
+            withdrawId: 'unique_123456'
         }, 
         api_key, api_secret, host
     ).then(res => {
         res.json().then((data)=>{
-            console.log(JSON.stringify(data, null, 4));
+            console.log(JSON.stringify(data, null, 4))
         })
     }).catch(err => {
         console.log(err)
-    });
+    })
 ```
