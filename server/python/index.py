@@ -20,11 +20,10 @@ from pycoin.encoding import from_bytes_32
 
 import requests
 
-RAZZIL_PUB = "032f45930f652d72e0c90f71869dfe9af7d713b1f67dc2f7cb51f9572778b9c876"
-# API_HOST = "http://razzil-api.dev.csiodev.com"
-API_HOST = 'http://localhost:3000'
-APP_KEY = "W4R4IHQNBB91PG6K"
-APP_SECRET = "016f47e0bcf9a152dd216d1990468c1cb9aa29e82bf2bbc303e15c597add404b"
+RAZOR_PUB = "032f45930f652d72e0c90f71869dfe9af7d713b1f67dc2f7cb51f9572778b9c876"
+API_HOST = 'http://razor.dev.csiodev.com'
+API_KEY = "039b4a3dd1471bf3321bb89ca42b66b4cd3b9632b47759389a7ffafd452a12e4c7"
+API_SECRET = "e4ccd9c8c2c67fe3c07fe7d89402cf215cdf2335db16577f0b45f88123aef072"
 
 
 def double_hash256(content):
@@ -63,7 +62,7 @@ def verify_response(response):
     try:
         timestamp = response.headers["BIZ_TIMESTAMP"]
         signature = response.headers["BIZ_RESP_SIGNATURE"]
-        success = verify("%s|%s" % (content, timestamp), signature, RAZZIL_PUB)
+        success = verify("%s|%s" % (content, timestamp), signature, RAZOR_PUB)
     except KeyError:
         pass
     return success, json.loads(content)
@@ -73,7 +72,7 @@ def request(
     method,
     path,
     params,
-    app_key,
+    api_key,
     api_secret,
     host=API_HOST,
     sign_type="hmac",
@@ -88,7 +87,7 @@ def request(
         sign = generate_ecc_signature(content, api_secret)
 
     headers = {
-        "Biz-Api-Key": app_key,
+        "Biz-Api-Key": api_key,
         "Biz-Api-Nonce": nonce,
         "Biz-Api-Signature": sign,
     }
@@ -97,10 +96,12 @@ def request(
             "%s%s" % (host, path), params=urlencode(params), headers=headers
         )
     elif method == "POST":
-        resp = requests.post("%s%s" % (host, path),
-                             data=params, headers=headers)
+        resp = requests.post(
+            "%s%s" % (host, path), data=params, headers=headers
+        )
     else:
         raise Exception("Not support http method")
+
     verify_success, result = verify_response(resp)
     if not verify_success:
         raise Exception(
@@ -111,51 +112,55 @@ def request(
 get = functools.partial(request, "GET")
 post = functools.partial(request, "POST")
 
-
 class Client():
 
     def __init__(
         self,
-        app_key=None,
+        api_key=None,
         api_secret=None,
         host=API_HOST,
         sign_type="hmac",
     ):
         super(Client, self).__init__()
-        assert app_key
+        assert api_key
         assert api_secret
         assert sign_type in ("hmac", "ecdsa")
-        self.key = app_key
+        self.key = api_key
         self.secret = api_secret
         self.host = host
         self.sign_type = sign_type
 
     def _request(self, method, url, data):
-        res = method(url, data, self.key, self.secret,
-                     self.host, self.sign_type)
-        print(json.dumps(res, indent=4))
+        res = method(
+            url, data, self.key, self.secret, self.host, self.sign_type
+        )
+        print(res)
+        # print(json.dumps(res, indent=4))
 
     def create_payment(self, amount, expiry):
         return self._request(
-            post, "/v1/payment/", {"amount": amount, "expiry": expiry}
+            post, "/open/v1/payment/", {"amount": amount, "expiry": expiry}
         )
 
     def get_payment(self, paymentId):
-        return self._request(get, "/v1/payment/" + paymentId, {})
+        return self._request(
+            get, "/open/v1/payment/" + paymentId, {}
+        )
 
 
 if __name__ == "__main__":
     # Replace by your own keys
-    app_key = APP_KEY
-    api_secret = APP_SECRET
+    api_key = API_KEY
+    api_secret = API_SECRET
     api_host = API_HOST
     client = Client(
-        app_key=app_key,
+        api_key=api_key,
         api_secret=api_secret,
         host=api_host,
         sign_type="ecdsa",
     )
+
     # client.create_payment(1024, 1800)
 
     # 获取交易详情
-    client.get_payment('a766308d-2171-4196-bb96-38f30c661fbc')
+    client.get_payment('36eb5266-5fcc-49a2-9d85-d709c08e6922')

@@ -35,5 +35,5 @@ Request("POST", "/v1/withdraw", map[string]string{
 ## 获取提现申请信息
 
 ```go
-Request("GET", "/v1/withdraw/withdraw_id/", map[string]string{})
+Request("GET", "/v1/withdraw/withdraw_id", map[string]string{})
 ```
