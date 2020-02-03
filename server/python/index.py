@@ -22,9 +22,10 @@ import requests
 
 RAZOR_PUB = "032f45930f652d72e0c90f71869dfe9af7d713b1f67dc2f7cb51f9572778b9c876"
 API_HOST = 'http://razor.dev.csiodev.com'
-API_KEY = "039b4a3dd1471bf3321bb89ca42b66b4cd3b9632b47759389a7ffafd452a12e4c7"
-API_SECRET = "e4ccd9c8c2c67fe3c07fe7d89402cf215cdf2335db16577f0b45f88123aef072"
-
+# API_KEY = "039b4a3dd1471bf3321bb89ca42b66b4cd3b9632b47759389a7ffafd452a12e4c7"
+# API_SECRET = "e4ccd9c8c2c67fe3c07fe7d89402cf215cdf2335db16577f0b45f88123aef072"
+API_KEY = "03163b3985b06beaa1bcf285bba08c9510a24cf15ba82d95cc43a0a1052810268d"
+API_SECRET = "e741b6179adbbfb89f8b9a3aa40950e12d200170a2852637b3eb4ca9faa31703"
 
 def double_hash256(content):
     return hashlib.sha256(hashlib.sha256(content.encode()).digest()).digest()
@@ -134,8 +135,7 @@ class Client():
         res = method(
             url, data, self.key, self.secret, self.host, self.sign_type
         )
-        print(res)
-        # print(json.dumps(res, indent=4))
+        return res
 
     def create_payment(self, amount, expiry):
         return self._request(
@@ -160,7 +160,8 @@ if __name__ == "__main__":
         sign_type="ecdsa",
     )
 
-    # client.create_payment(1024, 1800)
+    client.create_payment(1024, 1800)
 
     # 获取交易详情
-    client.get_payment('36eb5266-5fcc-49a2-9d85-d709c08e6922')
+    payment = client.get_payment('36eb5266-5fcc-49a2-9d85-d709c08e6922')
+    print(payment)
