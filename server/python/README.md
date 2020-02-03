@@ -5,7 +5,7 @@
 ```python
 request(
     "GET", 
-    "/v1/payment", 
+    "/open/v1/payment", 
     {
         page: 1,
         limit: 10
@@ -19,7 +19,7 @@ request(
 ```python
 request(
     "POST", 
-    "/v1/payment/" + payment_id, 
+    "/open/v1/payment/" + payment_id, 
     {},
     api_key, api_secret, host
 )
@@ -30,7 +30,7 @@ request(
 ```python
 request(
     "POST", 
-    "/v1/payment", 
+    "/open/v1/payment", 
     {
         amount: 1024,
         expiry: 1800
@@ -44,7 +44,7 @@ request(
 ```python
 request(
     "POST", 
-    "/v1/withdraw/", 
+    "/open/v1/withdraw/", 
     {
         invoice: "xxxxxxxx"
     },
@@ -57,7 +57,7 @@ request(
 ```python
 request(
     "GET",
-    "/v1/withdraw/withdraw_id",
+    "/open/v1/withdraw/withdraw_id",
     {},
     api_key, api_secret, host
 )
